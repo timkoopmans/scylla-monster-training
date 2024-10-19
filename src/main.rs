@@ -2,12 +2,16 @@ mod challenges;
 mod monster;
 
 use crate::monster::animate;
-use clap::Parser;
+use clap::{Parser, ArgAction};
 use once_cell::sync::Lazy;
+
+static TEXT_SCROLL: Lazy<bool> = Lazy::new(|| {
+    Opt::parse().disable_text_scroll
+});
 
 static SPEED: Lazy<f32> = Lazy::new(|| {
     let s = Opt::parse().chat_speed;
-    return if s >= 60.0 { s } else { 4096.0 }
+    return if s >= 60.0 && *TEXT_SCROLL { s } else { 4096.0 }
 });
 
 #[derive(Debug, Parser, Clone)]
@@ -17,6 +21,9 @@ struct Opt {
 
     #[structopt(long, short = 's', default_value = "60.0")]
     chat_speed: f32,
+
+    #[structopt(long, short = 'd', action=ArgAction::SetFalse)]
+    disable_text_scroll: bool,
 }
 
 fn main() {

@@ -1,4 +1,5 @@
 use crate::SPEED;
+use crate::TEXT_SCROLL;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::Confirm;
 use rand::Rng;
@@ -69,15 +70,27 @@ pub fn say(text: &str) {
 }
 
 pub fn info(text: &str) {
-    snailprint_d(text.blue(), 1.0);
+    if *TEXT_SCROLL {
+        snailprint_d(text.blue(), 1.0);
+    } else {
+        snailprint_d(text.blue(), 0.0);
+    }
 }
 
 pub fn warn(text: &str) {
-    snailprint_d(text.yellow(), 1.0);
+    if *TEXT_SCROLL {
+        snailprint_d(text.yellow(), 1.0);
+    } else {
+        snailprint_d(text.yellow(), 0.0);
+    }
 }
 
 pub fn fail(text: &str) {
-    snailprint_d(text.red(), 1.0);
+    if *TEXT_SCROLL {
+        snailprint_d(text.red(), 1.0);
+    } else {
+        snailprint_d(text.red(), 0.0);
+    }
 }
 
 pub fn exit(text: &str) {
