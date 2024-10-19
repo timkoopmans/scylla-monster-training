@@ -6,7 +6,8 @@ use clap::Parser;
 use once_cell::sync::Lazy;
 
 static SPEED: Lazy<f32> = Lazy::new(|| {
-    Opt::parse().chat_speed
+    let s = Opt::parse().chat_speed;
+    return if s >= 60.0 { s } else { 4096.0 }
 });
 
 #[derive(Debug, Parser, Clone)]
@@ -14,7 +15,7 @@ struct Opt {
     #[structopt(long, short = 'c', default_value = "000")]
     challenge: String,
 
-    #[structopt(long, default_value = "60.0")]
+    #[structopt(long, short = 's', default_value = "60.0")]
     chat_speed: f32,
 }
 
