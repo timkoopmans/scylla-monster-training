@@ -7,16 +7,14 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        run: |
-          docker run --rm -v $(pwd):/workspace -w /workspace rust:1.70.0-buster \
-          /bin/bash -c "apt-get update && apt-get install -y build-essential && cargo build --release"
+      - name: Build project
+        run: cargo build --release
 
       - name: Create Release
         id: create_release
@@ -40,4 +38,3 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./target/release/smt
           asset_name: smt
-          asset_content_type: application/octet-stream
