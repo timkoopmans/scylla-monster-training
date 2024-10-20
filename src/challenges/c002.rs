@@ -8,7 +8,7 @@ use crate::monster::{ask, exit, info, pause, redraw, say, warn};
 pub fn setup() {
     redraw();
 
-    say("Great! here's your next challenge");
+    say("Great! here's your next challenge.");
     pause();
 
     redraw();
@@ -16,7 +16,16 @@ pub fn setup() {
     info("Challenge 2: Add 2 more nodes to the cluster.");
 
     say(r#"
-    Add another 2 nodes to your cluster, calling them node2 and node3..
+    Add another 2 nodes to your cluster, calling them node2 and node3.
+    Make sure that all nodes are part of the same network, and that they are
+    able to communicate with each other. You should be able to run the following
+    command on each node and see the status of the cluster:
+
+        nodetool statusbinary
+
+    Hints: you can also use the following command to check the status of the cluster:
+
+        docker exec -it node1 nodetool status
     "#);
 
     exit("smt -c 002");

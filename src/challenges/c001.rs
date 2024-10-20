@@ -8,7 +8,7 @@ use crate::checks::nodetool::check_nodetool_status;
 pub fn setup() {
     redraw();
 
-    say("Great! here's your first challenge");
+    say("Great! here's your first challenge.");
     pause();
 
     redraw();
@@ -17,6 +17,8 @@ pub fn setup() {
 
     say(r"
     Have a go at creating a single node cluster, and call it node1.
+    Make sure that the node is part of a network called 'scylla', and that it is
+    able to communicate with itself.
 
     Hints:
     1. Since we will be starting multiple nodes in the coming challenges,
@@ -24,8 +26,9 @@ pub fn setup() {
         docker network create --driver bridge scylla
 
     2. Since we're just kicking the tires, make sure your run the node with
-    the following flags:
-        --smp 1
+    the following arguments:
+        docker run --rm -d --name node1 --network scylla scylladb/scylla \
+        --smp 1 \
         --memory 1G
     ");
 
