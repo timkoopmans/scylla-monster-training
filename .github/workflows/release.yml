@@ -13,8 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build project
-        run: cargo build --release
+      - name: Set up Docker
+        run: |
+          docker run --rm -v $(pwd):/workspace -w /workspace rust:1.70.0-buster \
+          /bin/bash -c "apt-get update && apt-get install -y build-essential && cargo build --release"
 
       - name: Create Release
         id: create_release
