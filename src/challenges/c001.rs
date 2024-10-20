@@ -25,7 +25,7 @@ pub fn setup() {
         --memory 1G
     ");
 
-    exit("skylar-rpg -c 001");
+    exit("smt -c 001");
 }
 
 pub fn solve() {

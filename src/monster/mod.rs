@@ -23,7 +23,7 @@ pub fn draw() {
 │  ({}) │
 │  {} │
 ╰╰╰╰╯╯╯╯
-    "#, eye(), mouth()).blue(), 0.0);
+    "#, eye(), mouth()).cyan().bold(), 0.0);
 }
 
 fn mouth() -> &'static str {

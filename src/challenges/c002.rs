@@ -15,7 +15,7 @@ pub fn setup() {
     Add another 2 nodes to your cluster, calling them node2 and node3..
     "#);
 
-    exit("skylar-rpg -c 002");
+    exit("smt -c 002");
 }
 
 pub fn solve() {
