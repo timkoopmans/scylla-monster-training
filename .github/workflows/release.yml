@@ -38,3 +38,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./target/release/smt
           asset_name: smt
+          asset_content_type: application/octet-stream
