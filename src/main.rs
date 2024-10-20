@@ -12,7 +12,7 @@ static SPEED: Lazy<f32> = Lazy::new(|| {
 #[derive(Debug, Parser, Clone)]
 struct Opt {
     /// Challenge number to resume. 🥚'dance' to animate the monster.
-    #[structopt(long, short = 'c', default_value = "000")]
+    #[structopt(long, short = 'c', default_value = "001")]
     challenge: String,
 
     /// Speed of the chat, in seconds duration. 0.0 to disable.

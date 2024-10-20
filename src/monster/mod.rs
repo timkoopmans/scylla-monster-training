@@ -69,7 +69,7 @@ pub fn say(text: &str) {
 }
 
 pub fn info(text: &str) {
-    snailprint_d(text.blue(), *SPEED);
+    snailprint_d(text.cyan(), *SPEED);
 }
 
 pub fn warn(text: &str) {
@@ -90,7 +90,7 @@ pub fn exit(text: &str) {
 }
 
 pub fn award() {
-    say("Nice one! Looks like you solved the challenge. Keep a copy of this coin address:");
+    say("Keep a copy of this coin address:");
     info(Uuid::new_v4().to_string().as_str());
 }
 
