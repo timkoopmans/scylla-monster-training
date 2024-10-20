@@ -3,6 +3,10 @@ name = "scylla-monster-training"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "smt"
+path = "src/main.rs"
+
 [dependencies]
 snailshell = "0.3.1"
 tracing = { version = "0.1.37", default-features = false }
