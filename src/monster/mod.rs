@@ -65,23 +65,23 @@ pub fn ask(prompt: &str) -> bool {
 }
 
 pub fn say(text: &str) {
-    snailprint_s(text, *SPEED);
+    snailprint_d(text, *SPEED);
 }
 
 pub fn info(text: &str) {
-    snailprint_d(text.blue(), 1.0);
+    snailprint_d(text.blue(), *SPEED);
 }
 
 pub fn warn(text: &str) {
-    snailprint_d(text.yellow(), 1.0);
+    snailprint_d(text.yellow(), *SPEED);
 }
 
 pub fn fail(text: &str) {
-    snailprint_d(text.red(), 1.0);
+    snailprint_d(text.red(), *SPEED);
 }
 
 pub fn exit(text: &str) {
-    snailprint_s(r#"
+    snailprint_d(r#"
     If you need help at any time you can always take a peek at the detailed instructions.
     When you've completed this challenge, just call me again like this:
     "#, *SPEED);

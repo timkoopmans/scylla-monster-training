@@ -14,7 +14,7 @@ struct Opt {
     #[structopt(long, short = 'c', default_value = "000")]
     challenge: String,
 
-    #[structopt(long, default_value = "60.0")]
+    #[structopt(long, short = 's', default_value = "1.0")]
     chat_speed: f32,
 }
 
