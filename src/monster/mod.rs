@@ -3,7 +3,7 @@ use dialoguer::theme::ColorfulTheme;
 use dialoguer::Confirm;
 use rand::Rng;
 use ratatui::crossterm::style::Stylize;
-use snailshell::{snailprint_d, snailprint_s};
+use snailshell::{snailprint_d};
 use std::thread::sleep;
 use std::time::Duration;
 use uuid::Uuid;

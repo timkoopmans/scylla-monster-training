@@ -31,8 +31,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this release:
-            - Feature 1
-            - Feature 2
+            - Challenge 1
           draft: false
           prerelease: false
 
