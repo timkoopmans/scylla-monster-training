@@ -1,10 +1,9 @@
 use crate::challenges::c002;
-use crate::monster::{ask, award, exit, fail, info, pause, redraw, say, warn};
+use crate::monster::{ask, exit, info, pause, redraw, say, warn};
 use bollard::Docker;
-use bollard::container::ListContainersOptions;
-use bollard::network::InspectNetworkOptions;
 use tokio::runtime::Runtime;
-use std::collections::HashMap;
+use crate::checks::docker::{check_docker_container, check_docker_network};
+use crate::checks::nodetool::check_nodetool_status;
 
 pub fn setup() {
     redraw();
@@ -36,17 +35,13 @@ pub fn setup() {
 pub fn solve() {
     redraw();
 
-    say("Welcome back! Please wait while I check your results");
-    pause();
+    say("Welcome back! Please wait while I check your result ...");
 
-    redraw();
-
-    if !check_docker_setup() {
+    if !checks() {
         return;
     }
 
     say("Nice one! Looks like you solved the challenge.\n");
-    // award();
 
     if ask("Are you ready for your next challenge?") {
         c002::setup();
@@ -55,38 +50,23 @@ pub fn solve() {
     }
 }
 
-pub fn check_docker_setup() -> bool {
+pub fn checks() -> bool {
     let rt = Runtime::new().unwrap();
     let result = rt.block_on(async {
         let docker = Docker::connect_with_local_defaults().unwrap();
 
-        // Check if the Docker network 'scylla' exists
-        let network = docker.inspect_network("scylla", None::<InspectNetworkOptions<String>>).await;
-        if network.is_err() {
-            fail("Docker network 'scylla' does not exist. Please create it using: \n\
-            docker network create --driver bridge scylla");
+        if !check_docker_network(&docker, "scylla").await {
             return false;
         }
 
-        // Check if the container 'node1' is running
-        let mut filters = HashMap::new();
-        filters.insert("name", vec!["node1"]);
-        filters.insert("network", vec!["scylla"]);
-
-        let options = Some(ListContainersOptions {
-            all: true,
-            filters,
-            ..Default::default()
-        });
-
-        let containers = docker.list_containers(options).await.unwrap();
-        if containers.is_empty() {
-            fail("Container 'node1' is not running on the 'scylla' network. \n\
-            Please start it with the appropriate settings.");
+        if !check_docker_container(&docker, "node1", "scylla").await {
             return false;
         }
 
-        info("Container 'node1' is running on the 'scylla' network.");
+        if !check_nodetool_status(&docker, "node1").await {
+            return false;
+        }
+
         true
     });
 

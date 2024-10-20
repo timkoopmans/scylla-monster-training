@@ -76,6 +76,10 @@ pub fn warn(text: &str) {
     snailprint_d(text.yellow(), *SPEED);
 }
 
+pub fn pass(text: &str) {
+    snailprint_d(text.green(), *SPEED);
+}
+
 pub fn fail(text: &str) {
     snailprint_d(text.red(), *SPEED);
 }

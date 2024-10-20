@@ -1,5 +1,6 @@
 mod challenges;
 mod monster;
+mod checks;
 
 use crate::monster::animate;
 use clap::Parser;
