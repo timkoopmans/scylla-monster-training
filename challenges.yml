@@ -1,0 +1,21 @@
+challenges:
+  - id: "001"
+    description: "Setup a single node cluster using docker."
+    setup_commands:
+      - "docker network create --driver bridge scylla"
+      - "docker run --rm -d --name node1 --network scylla scylladb/scylla --smp 1 --memory 1G"
+    check_commands:
+      - "check_docker_network scylla"
+      - "check_docker_container node1 scylla"
+      - "check_nodetool_status node1"
+  - id: "002"
+    description: "Add 2 more nodes to the cluster."
+    setup_commands:
+      - "docker run --rm -d --name node2 --network scylla scylladb/scylla --smp 1 --memory 1G"
+      - "docker run --rm -d --name node3 --network scylla scylladb/scylla --smp 1 --memory 1G"
+    check_commands:
+      - "check_docker_network scylla"
+      - "check_docker_container node1 scylla"
+      - "check_docker_container node2 scylla"
+      - "check_docker_container node3 scylla"
+      - "check_nodetool_status node1"
