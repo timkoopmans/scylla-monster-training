@@ -5,6 +5,7 @@ use tokio::runtime::Runtime;
 use tracing::error;
 use crate::checks::docker::{check_docker_container, check_docker_network};
 use crate::checks::nodetool::check_nodetool_status;
+use crate::CONFIG;
 
 pub fn setup(challenge: &Challenge) {
     redraw();
@@ -26,10 +27,13 @@ pub fn solve(challenge: &Challenge) {
         return;
     }
 
-    say("Nice one! Looks like you solved the challenge.\n");
-
     if ask("Are you ready for your next challenge?") {
-        // Load the next challenge dynamically
+        let next_challenge_id = format!("{:03}", challenge.id.parse::<u32>().unwrap() + 1);
+        if let Some(next_challenge) = CONFIG.challenges.iter().find(|c| c.id == next_challenge_id) {
+            setup(next_challenge);
+        } else {
+            warn("No more challenges available!");
+        }
     } else {
         warn("No worries, you can come back and try another time!");
     }

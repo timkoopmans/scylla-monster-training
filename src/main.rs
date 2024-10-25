@@ -14,6 +14,12 @@ static SPEED: Lazy<f32> = Lazy::new(|| {
     Opt::parse().animation_speed
 });
 
+static CONFIG: Lazy<Config> = Lazy::new(|| {
+    serde_yaml::from_str(
+        &fs::read_to_string("challenges.yml").expect("Failed to read challenges.yaml")
+    ).expect("Failed to parse YAML")
+});
+
 #[derive(Debug, Parser, Clone)]
 struct Opt {
     /// Challenge number to resume.
@@ -32,16 +38,12 @@ struct Opt {
 fn main() {
     let opt = Opt::parse();
 
-    let config: Config = serde_yaml::from_str(
-        &fs::read_to_string("challenges.yml").expect("Failed to read challenges.yaml")
-    ).expect("Failed to parse YAML");
-
     match opt.challenge.as_str() {
         "dance" => {
             animate();
         }
         _ => {
-            if let Some(challenge) = config.challenges.iter().find(|c| c.id == opt.challenge) {
+            if let Some(challenge) = CONFIG.challenges.iter().find(|c| c.id == opt.challenge) {
                 if opt.solve {
                     challenges::solve(challenge);
                 } else {
