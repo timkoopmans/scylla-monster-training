@@ -26,7 +26,11 @@ pub async fn check_nodetool_status(docker: &Docker, container_name: &str) -> boo
                     }
                 }
             }
-            pass(format!("✅ nodetool statusbinary output: {}", output_str).as_str());
+            if success {
+                pass(format!("✅ nodetool statusbinary output: {}", output_str).as_str());
+            } else {
+                fail(format!("❌ nodetool statusbinary failed: {}", output_str).as_str());
+            }
             success
         },
         _ => {

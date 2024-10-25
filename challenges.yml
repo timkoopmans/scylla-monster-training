@@ -15,8 +15,8 @@ challenges:
   - id: "002"
     description: "Add 2 more nodes to the cluster."
     setup:
-      - "docker run --rm -d --name node2 --network scylla scylladb/scylla --smp 1 --memory 1G"
-      - "docker run --rm -d --name node3 --network scylla scylladb/scylla --smp 1 --memory 1G"
+      - "docker run --rm -d --name node2 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1"
+      - "docker run --rm -d --name node3 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1"
     solve:
       - "check_docker_network scylla"
       - "check_docker_container node1 scylla"
