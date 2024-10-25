@@ -1,33 +1,25 @@
 use crate::config::Challenge;
-use crate::monster::{ask, info, pause, redraw, say, warn};
+use crate::monster::{ask, exit, info, redraw, say, warn};
 use bollard::Docker;
 use tokio::runtime::Runtime;
 use crate::checks::docker::{check_docker_container, check_docker_network};
 use crate::checks::nodetool::check_nodetool_status;
 
-pub fn run_challenge(challenge: &Challenge) {
-    setup(challenge);
-    solve(challenge);
-}
-
-fn setup(challenge: &Challenge) {
-    redraw();
-    say(&format!("Great! here's your challenge: {}", challenge.description));
-    pause();
+pub fn setup(challenge: &Challenge) {
     redraw();
     info(&challenge.description);
 
-    for command in &challenge.setup_commands {
+    for command in &challenge.setup {
         say(command);
     }
 
-    // exit(&format!("smt -c {}", challenge.id));
-    // std::process::exit(0);
+    exit(&format!("smt --solve {}", challenge.id));
+    std::process::exit(0);
 }
 
-fn solve(challenge: &Challenge) {
+pub fn solve(challenge: &Challenge) {
     redraw();
-    say("Welcome back! Please wait while I check your result ...");
+    say("Welcome back! Please wait while I check your results ...");
 
     if !checks(challenge) {
         return;
@@ -47,9 +39,7 @@ fn checks(challenge: &Challenge) -> bool {
     let result = rt.block_on(async {
         let docker = Docker::connect_with_local_defaults().unwrap();
 
-        for command in &challenge.check_commands {
-            // Execute the check commands dynamically
-            // This is a placeholder, you need to implement the actual check logic
+        for command in &challenge.solve {
             if !execute_check_command(&docker, command).await {
                 return false;
             }

@@ -8,20 +8,25 @@ use crate::monster::animate;
 use clap::Parser;
 use once_cell::sync::Lazy;
 use std::fs;
+use tracing::error;
 
 static SPEED: Lazy<f32> = Lazy::new(|| {
-    Opt::parse().chat_speed
+    Opt::parse().animation_speed
 });
 
 #[derive(Debug, Parser, Clone)]
 struct Opt {
-    /// Challenge number to resume. ??'dance' to animate the monster.
-    #[structopt(long, short = 'c', default_value = "002")]
+    /// Challenge number to resume.
+    #[structopt(index = 1, default_value = "001")]
     challenge: String,
 
+    /// Solve the challenge
+    #[structopt(long, short = 's')]
+    solve: bool,
+
     /// Speed of the chat, in seconds duration. 0.0 to disable.
-    #[structopt(long, short = 's', default_value = "0.0")]
-    chat_speed: f32,
+    #[structopt(long, short = 'a', default_value = "0.0")]
+    animation_speed: f32,
 }
 
 fn main() {
@@ -37,9 +42,13 @@ fn main() {
         }
         _ => {
             if let Some(challenge) = config.challenges.iter().find(|c| c.id == opt.challenge) {
-                challenges::run_challenge(challenge);
+                if opt.solve {
+                    challenges::solve(challenge);
+                } else {
+                    challenges::setup(challenge);
+                }
             } else {
-                eprintln!("Challenge not found");
+                error!("Challenge not found");
             }
         }
     }
