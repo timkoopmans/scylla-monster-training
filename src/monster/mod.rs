@@ -6,7 +6,6 @@ use ratatui::crossterm::style::Stylize;
 use snailshell::{snailprint_d};
 use std::thread::sleep;
 use std::time::Duration;
-use uuid::Uuid;
 
 pub fn animate() {
     loop {
@@ -85,17 +84,12 @@ pub fn fail(text: &str) {
 }
 
 pub fn exit(text: &str) {
-    snailprint_d(r#"
+    snailprint_d(trim(r#"
     If you need help at any time you can always take a peek at the detailed instructions.
     When you've completed this challenge, just call me again like this:
-    "#, *SPEED);
+    "#), *SPEED);
 
     info(text);
-}
-
-pub fn award() {
-    say("Keep a copy of this coin address:");
-    info(Uuid::new_v4().to_string().as_str());
 }
 
 pub fn clear() {
@@ -107,11 +101,10 @@ pub fn redraw() {
     draw();
 }
 
-pub fn dots() {
-    snailprint_d("...", 1.5);
-}
-
-pub fn pause() {
-    dots();
-    sleep(Duration::from_secs_f32(1.0));
+fn trim(input: &str) -> String {
+    input
+        .lines()
+        .map(|line| line.trim_start())
+        .collect::<Vec<&str>>()
+        .join("\n")
 }
