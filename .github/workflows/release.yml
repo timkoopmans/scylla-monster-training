@@ -26,7 +26,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this release:
-            - Challenge 1
+            - New challenges added.
           draft: false
           prerelease: false
 
