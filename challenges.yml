@@ -1,25 +1,56 @@
 challenges:
   - id: "001"
     description: "Setup a single node cluster using docker."
-    setup:
-      - "Welcome, stranger. My name is Scylla, the NoSQL monster. <nom nom>"
-      - "I'm here to guide you through a series of challenges to make learning ScyllaDB fun!"
-      - "Here's some hints to get you started:"
-      -
-      - "docker network create --driver bridge scylla"
-      - "docker run --rm -d --name node1 --network scylla scylladb/scylla --smp 1 --memory 1G"
+    setup: |
+      Welcome, stranger. My name is Scylla, the NoSQL monster. <nom nom>
+      I'm here to guide you through a series of challenges to make learning ScyllaDB fun!
+      
+      Here's some hints to get you started:
+      
+        docker network create --driver bridge scylla
+        docker run --rm -d --name node1 --network scylla scylladb/scylla --smp 1 --memory 1G
     solve:
       - "check_docker_network scylla"
       - "check_docker_container node1 scylla"
       - "check_nodetool_status node1"
   - id: "002"
     description: "Add 2 more nodes to the cluster."
-    setup:
-      - "docker run --rm -d --name node2 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1"
-      - "docker run --rm -d --name node3 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1"
+    setup: |
+      You can use the --seeds option to specify the IP address of the seed node. 
+      This is the first node that you started.
+      
+        docker run --rm -d --name node2 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1
+        docker run --rm -d --name node3 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1
     solve:
       - "check_docker_network scylla"
       - "check_docker_container node1 scylla"
       - "check_docker_container node2 scylla"
       - "check_docker_container node3 scylla"
       - "check_nodetool_status node1"
+  - id: "003"
+    description: "Creating a keyspace and table."
+    setup: |
+      Now that you have a 3-node cluster, let's create a keyspace and table.
+      First, let's connect to node1 via cqlsh:
+
+        docker exec -it node1 cqlsh
+
+      Now, create a keyspace named 'demo' with a replication factor of 3.
+
+        CREATE KEYSPACE IF NOT EXISTS demo
+        WITH REPLICATION = {
+          'class': 'NetworkTopologyStrategy', 
+          'replication_factor': 3
+        };
+      
+      Once you have created the keyspace, create a table named 'users' with the following schema:
+      
+        CREATE TABLE IF NOT EXISTS demo.users (
+            user_id UUID PRIMARY KEY,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT
+        );
+    solve:
+      - "check_keyspace node1 demo"
+      - "check_table node1 demo users"

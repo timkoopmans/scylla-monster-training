@@ -4,7 +4,7 @@ use serde::Deserialize;
 pub struct Challenge {
     pub id: String,
     pub description: String,
-    pub setup: Vec<String>,
+    pub setup: String,
     pub solve: Vec<String>,
 }
 

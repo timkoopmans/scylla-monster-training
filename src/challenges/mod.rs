@@ -3,6 +3,7 @@ use crate::monster::{ask, exit, info, redraw, say, warn};
 use bollard::Docker;
 use tokio::runtime::Runtime;
 use tracing::error;
+use crate::checks::cql::{check_keyspace, check_table};
 use crate::checks::docker::{check_docker_container, check_docker_network};
 use crate::checks::nodetool::check_nodetool_status;
 use crate::CONFIG;
@@ -11,9 +12,7 @@ pub fn setup(challenge: &Challenge) {
     redraw();
     info(&challenge.description);
 
-    for command in &challenge.setup {
-        say(command);
-    }
+    say(&challenge.setup);
 
     exit(&format!("smt --solve {}", challenge.id));
     std::process::exit(0);
@@ -86,6 +85,22 @@ async fn execute_check_command(docker: &Docker, command: &str) -> bool {
         "check_nodetool_status" => {
             if args.len() == 1 {
                 check_nodetool_status(docker,args[0]).await
+            } else {
+                error!("Invalid arguments for {}: {:?}", func_name, args);
+                false
+            }
+        }
+        "check_keyspace" => {
+            if args.len() == 2 {
+                check_keyspace(docker, args[0], args[1]).await
+            } else {
+                error!("Invalid arguments for {}: {:?}", func_name, args);
+                false
+            }
+        }
+        "check_table" => {
+            if args.len() == 3 {
+                check_table(docker, args[0], args[1], args[2]).await
             } else {
                 error!("Invalid arguments for {}: {:?}", func_name, args);
                 false
