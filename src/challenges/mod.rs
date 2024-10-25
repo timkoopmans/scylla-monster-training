@@ -2,6 +2,7 @@ use crate::config::Challenge;
 use crate::monster::{ask, exit, info, redraw, say, warn};
 use bollard::Docker;
 use tokio::runtime::Runtime;
+use tracing::error;
 use crate::checks::docker::{check_docker_container, check_docker_network};
 use crate::checks::nodetool::check_nodetool_status;
 
@@ -54,7 +55,7 @@ fn checks(challenge: &Challenge) -> bool {
 async fn execute_check_command(docker: &Docker, command: &str) -> bool {
     let parts: Vec<&str> = command.split_whitespace().collect();
     if parts.is_empty() {
-        eprintln!("Invalid check command: {}", command);
+        error!("Invalid check command: {}", command);
         return false;
     }
 
@@ -66,7 +67,7 @@ async fn execute_check_command(docker: &Docker, command: &str) -> bool {
             if args.len() == 1 {
                 check_docker_network(docker, args[0]).await
             } else {
-                eprintln!("Invalid arguments for {}: {:?}", func_name, args);
+                error!("Invalid arguments for {}: {:?}", func_name, args);
                 false
             }
         }
@@ -74,7 +75,7 @@ async fn execute_check_command(docker: &Docker, command: &str) -> bool {
             if args.len() == 2 {
                 check_docker_container(docker, args[0], args[1]).await
             } else {
-                eprintln!("Invalid arguments for {}: {:?}", func_name, args);
+                error!("Invalid arguments for {}: {:?}", func_name, args);
                 false
             }
         }
@@ -82,12 +83,12 @@ async fn execute_check_command(docker: &Docker, command: &str) -> bool {
             if args.len() == 1 {
                 check_nodetool_status(docker,args[0]).await
             } else {
-                eprintln!("Invalid arguments for {}: {:?}", func_name, args);
+                error!("Invalid arguments for {}: {:?}", func_name, args);
                 false
             }
         }
         _ => {
-            eprintln!("Unknown check command: {}", func_name);
+            error!("Unknown check command: {}", func_name);
             false
         }
     }
