@@ -16,12 +16,16 @@ static SPEED: Lazy<f32> = Lazy::new(|| {
 
 static CONFIG: Lazy<Config> = Lazy::new(|| {
     serde_yaml::from_str(
-        &fs::read_to_string("challenges.yml").expect("Failed to read challenges.yaml")
-    ).expect("Failed to parse YAML")
+        &fs::read_to_string(Opt::parse().config).expect("Failed to parse config")
+    ).expect("Failed to parse config")
 });
 
 #[derive(Debug, Parser, Clone)]
 struct Opt {
+    /// Config
+    #[structopt(long, short = 'c', default_value = "challenges.yml")]
+    config: String,
+
     /// Challenge number to resume.
     #[structopt(index = 1, default_value = "001")]
     challenge: String,
@@ -31,7 +35,7 @@ struct Opt {
     solve: bool,
 
     /// Speed of the chat, in seconds duration. 0.0 to disable.
-    #[structopt(long, short = 'a', default_value = "0.0")]
+    #[structopt(long, short = 'a', default_value = "0.2")]
     animation_speed: f32,
 }
 
