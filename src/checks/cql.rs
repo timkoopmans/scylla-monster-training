@@ -53,13 +53,13 @@ pub async fn check_table(docker: &Docker, container_name: &str, keyspace: &str, 
 
     match docker.start_exec(&exec.id, None).await.unwrap() {
         StartExecResults::Attached { mut output, .. } => {
-            let mut success = false;
+            let mut success = true;
             let mut output_str = String::new();
             while let Some(msg) = output.next().await {
                 if let Ok(msg) = msg {
                     output_str.push_str(&msg.to_string());
-                    if msg.to_string().contains(table) {
-                        success = true;
+                    if msg.to_string().contains("not found") {
+                        success = false;
                     }
                 }
             }
