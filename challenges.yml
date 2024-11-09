@@ -8,7 +8,7 @@ challenges:
       Here's some hints to get you started:
       
         docker network create --driver bridge scylla
-        docker run --rm -d --name node1 --network scylla scylladb/scylla --smp 1 --memory 1G
+        docker run --rm -d --name node1 --network scylla scylladb/scylla:6.1.1 --smp 1 --memory 1G
     solve:
       - "check_docker_network scylla"
       - "check_docker_container node1 scylla"
@@ -19,8 +19,8 @@ challenges:
       You can use the --seeds option to specify the IP address of the seed node. 
       This is the first node that you started.
       
-        docker run --rm -d --name node2 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1
-        docker run --rm -d --name node3 --network scylla scylladb/scylla --smp 1 --memory 1G --seeds=node1
+        docker run --rm -d --name node2 --network scylla scylladb/scylla:6.1.1 --smp 1 --memory 1G --seeds=node1
+        docker run --rm -d --name node3 --network scylla scylladb/scylla:6.1.1 --smp 1 --memory 1G --seeds=node1
     solve:
       - "check_docker_network scylla"
       - "check_docker_container node1 scylla"
@@ -35,22 +35,52 @@ challenges:
 
         docker exec -it node1 cqlsh
 
-      Now, create a keyspace named 'demo' with a replication factor of 3.
+      Now, create a keyspace named 'catalog' with a replication factor of 3.
 
-        CREATE KEYSPACE IF NOT EXISTS demo
+        CREATE KEYSPACE IF NOT EXISTS catalog
         WITH REPLICATION = {
           'class': 'NetworkTopologyStrategy', 
           'replication_factor': 3
         };
       
-      Once you have created the keyspace, create a table named 'users' with the following schema:
+      Once you have created the keyspace, create a table named 'mutant_data' with the following schema:
       
-        CREATE TABLE IF NOT EXISTS demo.users (
-            user_id UUID PRIMARY KEY,
-            first_name TEXT,
-            last_name TEXT,
-            email TEXT
+        CREATE TABLE catalog.mutant_data (
+          first_name text,
+          last_name text,
+          address text,
+          picture_location text,
+          PRIMARY KEY((first_name, last_name))
         );
     solve:
-      - "check_keyspace node1 demo"
-      - "check_table node1 demo users"
+      - "check_keyspace node1 catalog"
+      - "check_table node1 catalog mutant_data"
+  - id: "004"
+    description: "Inserting data into the table."
+    setup: |
+      Now that you have a table, let's insert some data into it.
+      Insert the following data into the 'mutant_data' table:
+      
+        INSERT INTO catalog.mutant_data ("first_name", "last_name", "address", "picture_location")
+          VALUES ('Bob', 'Loblaw', '1313 Mockingbird Lane', 'www.facebook.com/bobloblaw');
+        INSERT INTO catalog.mutant_data ("first_name", "last_name", "address", "picture_location")
+          VALUES ('Bob', 'Zemuda', '1202 Coffman Lane', 'www.facebook.com/bzemuda');
+        INSERT INTO catalog.mutant_data ("first_name", "last_name", "address", "picture_location")
+          VALUES ('Jim', 'Jeffries', '1211 Hollywood Lane', 'www.facebook.com/jeffries');
+    solve:
+      - "check_data node1 catalog mutant_data 3"
+  - id: "005"
+    description: "Querying and updating data from the table."
+    setup: |
+      Now that you have data in the table, let's query it.
+      Query the 'mutant_data' table to get the address of Bob Loblaw.
+      
+        SELECT address FROM catalog.mutant_data WHERE first_name = 'Bob' AND last_name = 'Loblaw';
+      
+      You should get the address '1313 Mockingbird Lane'.
+      
+      Now, update the address of Bob Loblaw to '1234 Elm Street'.
+      
+        UPDATE catalog.mutant_data SET address = '1234 Elm Street' WHERE first_name = 'Bob' AND last_name = 'Loblaw';
+    solve:
+      - "check_query node1 catalog mutant_data 'Bob' 'Loblaw' '1313 Mockingbird Lane'"
