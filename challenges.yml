@@ -82,5 +82,63 @@ challenges:
       Now, update the address of Bob Loblaw to '1234 Elm Street'.
       
         UPDATE catalog.mutant_data SET address = '1234 Elm Street' WHERE first_name = 'Bob' AND last_name = 'Loblaw';
-    solve:
-      - "check_query node1 catalog mutant_data 'Bob' 'Loblaw' '1313 Mockingbird Lane'"
+  - id: "006"
+    description: "Hot partitions."
+    setup: |
+      Hot partitions are partitions that receive a disproportionate amount of reads or writes.
+      This can lead to performance issues. Let's create a table that could potentially have hot partitions.
+      
+        CREATE TABLE events (
+          user_id UUID,
+          event_id UUID,
+          event_timestamp TIMESTAMP,
+          event_type TEXT,
+          event_data TEXT,
+          PRIMARY KEY (user_id, event_timestamp)
+        );
+      
+      Insert some data into the 'events' table:
+        USER_ID="123e4567-e89b-12d3-a456-426614174000"  
+        while true; do
+          cqlsh -e "INSERT INTO catalog.events (user_id, event_id, event_timestamp, event_type, event_data)
+          VALUES ($USER_ID, uuid(), toTimestamp(now()), 'event_type_example', '$(head -c 10000 < /dev/urandom | base64)');";
+        done
+      
+      This will insert random data into the 'events' table. You can stop the loop after a few seconds.
+      
+      Take a look at the top partitions:
+         docker exec -it node1 nodetool toppartitions
+      
+      You should see the 'events' table listed as a hot partition.
+        WRITES Sampler:
+          Cardinality: ~3 (256 capacity)
+          Top 10 partitions:
+                Partition                                                 Count       +/-
+                (catalog:events) 123e4567-e89b-12d3-a456-426614174000        14         0
+                (system:peers) 172.18.0.3                                     5         0
+                (system:peers) 172.18.0.4                                     4         0
+
+
+      To fix this, you can add a time bucket to the primary key:
+      
+        CREATE TABLE events (
+          user_id UUID,
+          bucket_minute TIMESTAMP,
+          event_id UUID,
+          event_timestamp TIMESTAMP,
+          event_type TEXT,
+          event_data TEXT,
+          PRIMARY KEY ((user_id, bucket_minute), event_timestamp)
+        );
+      
+      Insert some data into the 'events' table:
+        USER_ID="123e4567-e89b-12d3-a456-426614174000"  
+        while true; do
+          BUCKET_MINUTE=$(date +"%Y-%m-%d %H:%M:00")  # Current timestamp rounded to the minute
+          cqlsh -e "INSERT INTO catalog.events (user_id, bucket_minute, event_id, event_timestamp, event_type, event_data)
+            VALUES ($USER_ID, '$BUCKET_MINUTE', uuid(), toTimestamp(now()), 'event_type_example', '$(head -c 10000 < /dev/urandom | base64)');";
+        done
+
+      With this setup, the data is bucketed by each minute, allowing better distribution while keeping high-frequency events 
+      grouped by the minute. This approach is useful in scenarios where you expect many events per user in a short time span, 
+      effectively reducing the chance of a single hot partition.
